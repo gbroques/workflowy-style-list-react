@@ -89,10 +89,8 @@ function App() {
 }
 
 function WorkFlowyList({nodes, depth = 0}) {
-  const [currentDepth, setDepth] = React.useState(depth);
   const [currentPath, setPath] = React.useState([]);
   const handleChildSelect = (depth, id) => {
-    setDepth(depth + 1);
     setPath(currentPath.concat(id));
   };
   const foundNode = findNodeFromPath(nodes, currentPath);
@@ -102,7 +100,7 @@ function WorkFlowyList({nodes, depth = 0}) {
       <BreadCrumbsNavigation
         nodes={nodes}
         path={currentPath}
-        currentDepth={currentDepth}
+        setPath={setPath}
       />
       <h1 style={title === 'None' ? {color: 'lightgray'} : {}}>{title}</h1>
       <TreeList
@@ -129,23 +127,40 @@ function findNodeFromPath(nodes, path) {
   return recurse(nodes, 0);
 }
 
-function BreadCrumbsNavigation({path}) {
+function BreadCrumbsNavigation({path, setPath}) {
   if (path.length === 0) {
-    return <ul style={{listStyleType: 'none', color: 'white'}}><li>.</li></ul>
+    return <ul style={{listStyleType: 'none'}}><li>Home</li></ul>
   }
   return (
     <ul style={{listStyleType: 'none'}}>
-      {path.map((segment, index) => <BreadCrumb key={index} isFirstSegment={index === 0}>{segment}</BreadCrumb>)}
+      <li style={{display: 'inline-block'}}><a href="" onClick={() => setPath([])}>Home</a></li>
+      {
+        path.map((segment, index) => (
+          <BreadCrumb
+            key={index}
+            index={index}
+            path={path}
+            setPath={setPath}>
+              {segment}
+            </BreadCrumb>
+        ))
+      }
     </ul>
   );
 }
 
-function BreadCrumb({children, isFirstSegment}) {
-  const margin = isFirstSegment ? 0 : 8;
+function BreadCrumb({children, index, path, setPath}) {
+  const isLastSegment = index === path.length - 1;
+  const margin = 8;
+  const handleClick = event => {
+    event.preventDefault();
+    const nextPath = path.slice(0, (1 + index) - path.length);
+    setPath(nextPath);
+  };
   return (
     <li style={{display: 'inline-block', marginLeft: margin}}>
-      {!isFirstSegment && <span style={{display: 'inline-block', marginRight: margin}}>›</span>}
-      <a>{children}</a>
+      <span style={{display: 'inline-block', marginRight: margin}}>›</span>
+      {isLastSegment ? children : <a href="" onClick={handleClick}>{children}</a>}
     </li>
   );
 }
@@ -167,7 +182,7 @@ function TreeList({
             <button
               onClick={() => onChildSelect(depth, node.name)}
               disabled={node.children.length === 0}>
-              {depth}: {node.name}
+              {node.name}
             </button>
           </li>
         ))
