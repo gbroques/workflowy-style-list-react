@@ -2,6 +2,8 @@
 
 A React component for displaying infinitely nestable lists and tree structures in a manageable way similar to the productivity app [WorkFlowy](https://workflowy.com/).
 
+![Demo](demo.gif)
+
 ## Features
 * Display one level at a time
 * Allow infinite drill-down or nesting
